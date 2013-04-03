@@ -3,9 +3,9 @@ olakase
 
 ![ola k ase](http://www.actualidadjuvenil.com/wp-content/uploads/2012/12/ola-ke-ase-significado-300x300.jpg)
 
-to-do web app
+What: To-do web app
 
-allows:
+Allows:
 * display of to-do list
 * manipulation of list (add/remove/modify entries)
 * marking entries as completed
@@ -14,7 +14,7 @@ allows:
     * due dates
 * sorting of entries by those as well
 
-requirements:
+Requirements:
 * app:
     * minimal UI/UX design
     * single-page: cannot reload page.  each client operation is an Ajax call.
@@ -22,7 +22,7 @@ requirements:
     * RESTful API allowing 3rd-party apps to trigger all the same actions
 
 
-data model
+Data Model
 ----------
 
 Entry
@@ -31,3 +31,4 @@ Entry
 * priority : int
 * due date : datetime
 * completed : boolean
+
