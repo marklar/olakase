@@ -13,24 +13,21 @@ urlpatterns = patterns(
     # 2. Update client data model and redisplay it?
     #
 
+    # Should the path contain the verb?
+    # Or is using the right verb enough info?
+
     # GET
     # home page: show all tasks
     # ex: /kaseres/
     #
-    # How do we pass additional query parameters?:
-    #   * how we'd like the data sorted,
-    #   * how many results,
+    # Query string is in request.GET:
+    #   * how sort
+    #   * how many results
     #   * etc.
     url(r'^$', views.index, name='index'),
 
     # POST (create)
     # ex: /kaseres/create/
-    #
-    # instance data goes in the POST data
-    #
-    # Response: "201 Created" with a Location header
-    # containing the URL to the newly created resource.
-    #
     url(r'^create/$', views.create_task, name='create_task'),
 
     # GET (read)
