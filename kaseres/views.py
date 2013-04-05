@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods, require_safe, require_POST
-import json
+from django.template import Context, loader
 
 from kaseres.models import Task
 from kaseres.accepts import accepts_json, accepts_html, accepts_xml
@@ -16,10 +16,12 @@ def index(request):
 
     if accepts_json(request):
         return json_models_response(hi_pri_tasks)
-    elif accepts_xml(request):
+    elif False: # accepts_xml(request):
         return xml_models_response(hi_pri_tasks)
     else:
-        return HttpResponse('Foo')
+        template = loader.get_template('tasks/index.html')
+        context = Context({'tasks': hi_pri_tasks})
+        return HttpResponse(template.render(context))
 
 
 # @require_POST
@@ -34,12 +36,13 @@ def create_task(request):
     # due_date
     # is_completed
     # priority
-    return HttpResponse("NADA")
+    res_url = ''
     if accepts_json(request):
-        res_url = ''
         return json_obj_response(request.GET, status=201, location=res_url)
+    elif accepts_xml(request):
+        return xml_obj_response(request.GET, status=201, location=res_url)
     else:
-        return HttpResponse("HTML")
+        return HttpResponse("<h1>HTML</h1>")
 
 
 @require_safe

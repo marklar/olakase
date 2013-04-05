@@ -1,14 +1,16 @@
 import collections
+import json
+
 from django.http import HttpResponse
 from django.core import serializers
 
 def json_models_response(models, status=200, location=None):
-    json = serializers.serialize('json', make_iterable(models))
-    return json_response(json, status, location)
+    s = serializers.serialize('json', make_iterable(models))
+    return json_response(s, status, location)
 
 def json_obj_response(obj, status=200, location=None):
-    json = json.dumps(obj)
-    return json_response(json, status, location)
+    s = json.dumps(obj)
+    return json_response(s, status, location)
 
 def xml_models_response(models, status=200, location=None):
     xml = serializers.serialize('xml', make_iterable(models))
@@ -16,15 +18,14 @@ def xml_models_response(models, status=200, location=None):
 
 # -- FIXME --
 def xml_obj_response(obj, status=200, location=None):
-    pass
-    # xml = serializers.serialize('xml', obj)
-    xml = 'foo'
+    # pass
+    xml = serializers.serialize('xml', obj)
     return xml_response(xml, status, location)
 
 # -----
 
-def json_response(json, status, location):
-    return make_response(json, 'application/json', status, location)
+def json_response(s, status, location):
+    return make_response(s, 'application/json', status, location)
 
 def xml_response(xml, status, location):
     return make_response(xml, 'application/xml', status, location)
