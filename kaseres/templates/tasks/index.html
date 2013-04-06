@@ -1,9 +1,31 @@
-{% if tasks %}
-    <ul>
-    {% for task in tasks %}
-        <li><a href="/tasks/{{ task.id }}/">{{ task.title }}</a></li>
-    {% endfor %}
+<html>
+  <head>
+    {% load staticfiles %}
+
+    <script type="text/javascript" src="{% static 'kaseres/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'kaseres/js/jquery.init.js' %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'kaseres/css/main.css' %}" />
+
+  </head>
+
+  <body>
+
+    <h1>My Tasks</h1>
+
+    {% if tasks %}
+    <ul id="tasks">
+      {% for task in tasks %}
+      <li class="task" id="task_{{ task.id }}">
+	<a href="{% url 'kaseres:read_task' task.id %}">
+	  {{ task.title }}
+	</a>
+      </li>
+      {% endfor %}
     </ul>
-{% else %}
+    {% else %}
     <p>No tasks are available.</p>
-{% endif %}
+    {% endif %}
+
+  </body>
+</html>
