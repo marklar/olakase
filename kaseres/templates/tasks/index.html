@@ -19,7 +19,7 @@
 
     <h2>Sort by:</h2>
     {% for name, attr in sort_attrs %}
-    <button type="button" id="sort_{{attr}}">{{name}}</button>
+    <button type="button" class="sort_btn" id="sort_{{attr}}">{{name}}</button>
     {% endfor %}
 
     {% include "tasks/all_tasks.html" %}

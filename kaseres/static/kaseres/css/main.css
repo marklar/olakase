@@ -9,12 +9,17 @@
     border-style: solid;
     border-width: 1px;
     border-color: navy;
-    background-color: LightSteelBlue;
+}
+
+.delete_btn {
+    display: inline-block;
+    color: red;
 }
 
 .attr {
     width: 150px;
     display: inline-block;
+    border: 1px solid red;
 }
 
 .title {
@@ -22,8 +27,4 @@
 }
 
 .due_date {
-}
-
-.task .sorted {
-    background-color: LightSteelBlue;
 }
