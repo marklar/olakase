@@ -1,0 +1,15 @@
+{% if tasks %}
+
+<ul id="tasks">
+
+  {% for task in tasks %}
+  {% include "tasks/one_task.html" with task=task %}
+  {% endfor %}
+
+</ul>
+
+{% else %}
+
+<p>No tasks are available.</p>
+
+{% endif %}

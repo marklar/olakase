@@ -13,19 +13,7 @@
 
     <h1>My Tasks</h1>
 
-    {% if tasks %}
-    <ul id="tasks">
-      {% for task in tasks %}
-      <li class="task" id="task_{{ task.id }}">
-	<a href="{% url 'kaseres:read_task' task.id %}">
-	  {{ task.title }}
-	</a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>No tasks are available.</p>
-    {% endif %}
+    {% include "tasks/all_tasks.html" %}
 
   </body>
 </html>
