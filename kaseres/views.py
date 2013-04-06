@@ -36,6 +36,13 @@ def blurfl(f):
 #   }
 #
 
+sort_attrs = [
+    ('Title', 'title'),
+    ('Due', 'due_date'),
+    ('Priority', 'priority'),
+    ('Completed?', 'is_completed')
+]
+
 @require_safe
 @blurfl
 def index(request):
@@ -43,7 +50,7 @@ def index(request):
     return {
         'models': hi_pri_tasks,
         'template': 'tasks/index.html',
-        'context': {'tasks': hi_pri_tasks}
+        'context': {'tasks': hi_pri_tasks, 'sort_attrs': sort_attrs}
     }
 
 # @require_POST

@@ -3,7 +3,7 @@
     {% load staticfiles %}
 
     <script type="text/javascript" src="{% static 'kaseres/js/jquery.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'kaseres/js/jquery.init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'kaseres/js/kaseres.js' %}"></script>
 
     <link rel="stylesheet" type="text/css" href="{% static 'kaseres/css/main.css' %}" />
 
@@ -12,6 +12,15 @@
   <body>
 
     <h1>My Tasks</h1>
+
+    <div>
+      <button type="button" id="toggle_details">Hide Details</button>
+    </div>
+
+    <h2>Sort by:</h2>
+    {% for name, attr in sort_attrs %}
+    <button type="button" id="sort_{{attr}}">{{name}}</button>
+    {% endfor %}
 
     {% include "tasks/all_tasks.html" %}
 

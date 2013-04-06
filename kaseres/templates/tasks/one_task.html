@@ -1,5 +1,13 @@
 <li class="task" id="task_{{ task.id }}">
   <!-- <a href="{% url 'kaseres:read_task' task.id %}"> -->
-  {{ task.title }}
+  <div>
+    <div class="attr title">{{ task.title }}</div>
+    <div class="attr due_date">{{ task.due_date }}</div>
+    <div class="attr priority">{{ task.priority }}</div>
+    <div class="attr is_completed">{{ task.is_completed }}</div>
+  </div>
+  <p class="task_body">
+    {{ task.body }}
+  </p>
   <!-- </a> -->
 </li>
