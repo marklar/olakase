@@ -3,7 +3,7 @@
 <ul id="tasks">
 
   {% for task in tasks %}
-  {% include "tasks/one_task.html" with task=task %}
+  {% include "tasks/one_task.html" with task=task priorities=priorities %}
   {% endfor %}
 
 </ul>

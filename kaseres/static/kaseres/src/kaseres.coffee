@@ -28,12 +28,9 @@ update_tasks = (htmlStr, textStatus, jqXHR) ->
     init_datepicker()
 
     if state.after_create
-        # For just-created task...
         state.after_create = false
-        # animate its appearance
         $('#tasks > li').filter(':first').toggle().toggle 200
-        # show it to be out of sort order
-        low_els $('#tasks > li:first .attr')
+        $('#tasks > li:first .attr').removeClass 'highlighted'
         #
         # TODO: set focus on title
         #
@@ -50,24 +47,20 @@ sort_tasks_by = (attr, is_asc) ->
         success: update_tasks
         error: -> on_ajax_error
 
-high_els = (els) -> els.addClass 'highlighted'
-low_els  = (els) -> els.removeClass 'highlighted'
-
-highlight_column = (attr) -> high_els $(".attr.#{attr}")
-
-toggle_sort_dir = (attr) ->
-    state.sort.is_asc[attr] = not state.sort.is_asc[attr]
-
 set_sort_state = (attr) ->
-    if state.sort.column == attr
-        toggle_sort_dir attr
+    s = state.sort
+    if s.column == attr
+        s.is_asc[attr] = not s.is_asc[attr]
     else
-        state.sort.column = attr
+        s.column = attr
 
 set_sort_btn_imgs = (attr) ->
     $('.sort_arrow').hide()
     dir = if state.sort.is_asc[attr] then 'up' else 'dn'
     $("##{dir}_arrow_#{attr}").show()
+
+highlight_column = (attr) ->
+    $(".attr.#{attr}").addClass 'highlighted'
 
 click_sort_btn = (evt) ->
     attr = this.id.match(/^sort_(.*)$/)[1]
@@ -76,13 +69,14 @@ click_sort_btn = (evt) ->
     sort_tasks_by attr, state.sort.is_asc[attr]
     highlight_column attr
 
-init_sort_btns = ->
+init_sort = ->
     $('.sort_btn').click click_sort_btn
     set_sort_btn_imgs state.sort.column
-
-init_sort = ->
-    init_sort_btns()
     highlight_column state.sort.column
+
+# -- edit task --
+
+# 
 
 # -- add task --
 

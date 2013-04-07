@@ -55,7 +55,11 @@ def index(request):
     return {
         'models': tasks,
         'template': get_index_template(request.is_ajax()),
-        'context': {'tasks': tasks, 'sort_attrs': SORT_ATTRS}
+        'context': {
+            'tasks': tasks,
+            'priorities': Task.PRIORITIES,
+            'sort_attrs': SORT_ATTRS
+        }
     }
 
 @require_POST
@@ -70,7 +74,10 @@ def create_task(request):
     all_tasks.insert(0, task)
 
     template = loader.get_template('tasks/all_tasks.html')
-    context = Context({'tasks': all_tasks})
+    context = Context({
+        'tasks': all_tasks,
+        'priorities': Task.PRIORITIES
+    })
     res_url = ''
     return make_response(
         template.render(context), 'text/html', status=201, location=res_url)
@@ -137,7 +144,10 @@ def index_old(request):
         return xml_models_response(hi_pri_tasks)
     else:
         template = loader.get_template('tasks/index.html')
-        context = Context({'tasks': hi_pri_tasks})
+        context = Context({
+            'tasks': hi_pri_tasks,
+            'priorities': Task.PRIORITIES
+        })
         return HttpResponse(template.render(context))
 
 
@@ -174,7 +184,10 @@ def all_tasks_html(status=200, location=None):
     # how sorted?
     tasks = Task.objects.all()
     template = loader.get_template('tasks/all_tasks.html')
-    context = Context({'tasks': tasks})
+    context = Context({
+        'tasks': tasks,
+        'priorities': Task.PRIORITIES
+    })
     return make_response(
         template.render(context), 'text/html', status, location)
 

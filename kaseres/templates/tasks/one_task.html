@@ -6,9 +6,13 @@
     </div>
     <div class="attr priority">
       <select name="priority" size="1">
-	<option value="3" {% if task.priority == 3 %}selected="selected"{% endif %}>High</option>
-	<option value="2" {% if task.priority == 2 %}selected="selected"{% endif %}>Med</option>
-	<option value="1" {% if task.priority == 1 %}selected="selected"{% endif %}>Low</option>
+	{% for n,s in priorities %}
+	<option
+	   value="{{ n }}"
+	   {% if task.priority == n %}selected="selected"{% endif %}>
+	  {{ s }}
+	</option>
+	{% endfor %}
       </select>
     </div>
     <div class="attr is_completed">

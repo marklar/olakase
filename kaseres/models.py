@@ -46,9 +46,9 @@ class Task(models.Model):
     due_date = models.DateField(default=date.today())
     is_completed = models.BooleanField(default=False)
     PRIORITIES = (
-        (3, 'HIGH'),
-        (2, 'MEDIUM'),
-        (1, 'LOW')
+        (3, 'High'),
+        (2, 'Med'),
+        (1, 'Low')
     )
     priority = models.PositiveSmallIntegerField(
         choices=PRIORITIES,
