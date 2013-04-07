@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods, require_safe, require_POST
 from django.template import Context, loader
-from datetime import datetime
+from datetime import datetime, date
 
 # from kaseres.models import Task, User, TaskList
 from kaseres.models import Task
@@ -89,15 +89,31 @@ def create_task(request):
 
 # helper, not a view.
 def create_task_from_data(request):
-    due_date = datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
-    is_completed = request.POST['is_completed'] == 'true'
     task = Task(title = request.POST['title'],
                 details = request.POST['details'],
-                due_date = due_date,
-                is_completed = is_completed,
-                priority = int(request.POST['priority']))
+                due_date = get_due_date(request),
+                is_completed = get_is_completed(request),
+                priority = get_priority(request))
     task.save()
     return task
+
+def get_due_date(request):
+    if 'due_date' in request.POST:
+        return datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
+    else:
+        return date.today()
+
+def get_priority(request):
+    if 'priority' in request.POST:
+        return int(request.POST['priority'])
+    else:
+        return 2
+
+def get_is_completed(request):
+    if 'is_completed' in request.POST:
+        return request.POST['is_completed'] == 'true'
+    else:
+        return False
 
 @require_safe
 def index_old(request):

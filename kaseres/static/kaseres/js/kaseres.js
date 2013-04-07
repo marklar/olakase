@@ -116,11 +116,8 @@
       data: {
         sort_attr: state.sort.column,
         sort_direction: state.sort.direction[state.sort.column],
-        title: 'bobo',
-        details: 'jungle',
-        due_date: 'February 1, 2013',
-        priority: 2,
-        is_completed: true
+        title: 'add title',
+        details: ''
       },
       dataType: 'html',
       cache: false,

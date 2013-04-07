@@ -39,6 +39,9 @@ update_tasks = (htmlStr, textStatus, jqXHR) ->
                 $('#tasks > li').filter(':first').toggle().toggle 200
                 # show it to be out of sort order
                 low_els $('#tasks > li:first .attr')
+                #
+                # TODO: set focus on title
+                #
 
 sort_tasks_by = (attr, direction) ->
         # TODO: set sort
@@ -99,11 +102,11 @@ click_create_submit = ->
                 data:
                         sort_attr: state.sort.column
                         sort_direction: state.sort.direction[state.sort.column]
-                        title: 'bobo'
-                        details: 'jungle'
-                        due_date: 'February 1, 2013'
-                        priority: 2
-                        is_completed: true
+                        title: 'add title'
+                        details: ''
+                        # due_date: 'February 1, 2013'
+                        # priority: 2
+                        # is_completed: true
                 dataType: 'html'
                 cache: false
                 error: on_ajax_error

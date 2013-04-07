@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 MAX_LEN = 256
 
@@ -42,7 +43,7 @@ class Task(models.Model):
     # )
     title = models.CharField(max_length=MAX_LEN)
     details = models.TextField()
-    due_date = models.DateField()
+    due_date = models.DateField(default=date.today())
     is_completed = models.BooleanField(default=False)
     PRIORITIES = (
         (3, 'HIGH'),
