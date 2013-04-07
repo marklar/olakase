@@ -4,12 +4,12 @@ from django.template import Context, loader
 
 from kaseres.models import Task, User, TaskList
 from kaseres.accepts import accepts_json, accepts_html, accepts_xml
-from kaseres.responses import json_models_response, json_obj_response, xml_models_response, xml_obj_response
+from kaseres.responses import json_models_response, json_obj_response, xml_models_response, xml_obj_response, make_response
 
 # Check for desired format: HTML or JSON.
 # If JSON, return data.  If HTML, use template.
 
-def blurfl(f):
+def restify(f):
     def wrapper(request):
         d = f(request)
 
@@ -44,18 +44,21 @@ SORT_ATTRS = [
 ]
 
 @require_safe
-@blurfl
+@restify
 def index(request):
+    """
+    If ajax, return the HTML for just the list of tasks.
+    """
     # hi_pri_tasks = Task.objects.order_by('-priority')[:5]
-    # sorted?
-    tasks = Task.objects.all()
+    attr = request.GET['attr'] if 'attr' in request.GET else 'priority'
+    tasks = Task.objects.order_by('-' + attr)
     return {
         'models': tasks,
-        'template': get_index_template(request),
+        'template': get_index_template(request.is_ajax()),
         'context': {'tasks': tasks, 'sort_attrs': SORT_ATTRS}
     }
 
-# @require_POST
+@require_POST
 def create_task(request):
     """
     Response: "201 Created" with a Location header
@@ -63,25 +66,26 @@ def create_task(request):
     """
     # task_list_id
     # title
-    # body
+    # details
     # due_date
     # is_completed
     # priority
 
+    # create the task
+    # use data: request.POST
     task_list = TaskList.objects.get(1)
-    task_list.task_set.create()
+    task = task_list.task_set.create(request.POST)
+    task.save()
 
+    # FIXME -- return the *HTML* for the new task.
     res_url = ''
-    return {
-        'obj': request.GET,
-        # FIXME
-    }
-    if accepts_json(request):
-        return json_obj_response(request.GET, status=201, location=res_url)
-    elif accepts_xml(request):
-        return xml_obj_response(request.GET, status=201, location=res_url)
-    else:
-        return HttpResponse('<h1>HTML</h1>')
+    return json_model_response(task, status=201, location=res_url)
+
+    # tasks = Task.objects.all()
+    # template = loader.get_template('tasks/all_tasks.html')
+    # context = Context({'tasks': tasks})
+    # return make_response(
+    #     template.render(context), 'text/html', status, location)
 
 
 @require_safe
@@ -142,15 +146,17 @@ def delete_task(request, task_id):
 
 # -- helpers --
 
-def get_index_template(request):
-    if request.is_ajax():
+def get_index_template(is_ajax):
+    if is_ajax:
         return 'tasks/all_tasks.html'
     else:
         return 'tasks/index.html'
 
-def all_tasks_html():
+def all_tasks_html(status=200, location=None):
     # how sorted?
     tasks = Task.objects.all()
     template = loader.get_template('tasks/all_tasks.html')
     context = Context({'tasks': tasks})
-    return HttpResponse(template.render(context))
+    return make_response(
+        template.render(context), 'text/html', status, location)
+

@@ -1,14 +1,25 @@
+<!-- <a href="{% url 'kaseres:read_task' task.id %}"></a> -->
 <li class="task" id="task_{{ task.id }}">
-  <!-- <a href="{% url 'kaseres:read_task' task.id %}"> -->
   <div>
-    <button type="button" class="delete_btn" id="delete_{{ task.id }}"> X </button>
     <div class="attr title">{{ task.title }}</div>
-    <div class="attr due_date">{{ task.due_date }}</div>
-    <div class="attr priority">{{ task.priority }}</div>
-    <div class="attr is_completed">{{ task.is_completed }}</div>
+    <div class="attr due_date">
+      <input type="text" class="date" value="{{ task.due_date }}" />
+      <!-- <input type="date" class="date" value="{{ task.due_date }}" /> -->
+    </div>
+    <!-- <div class="attr priority">{{ task.priority }}</div> -->
+    <div class="attr priority">
+      <select name="priority" size="1">
+	<option value="3" {% if task.priority == 3 %}selected="selected"{% endif %}>High</option>
+	<option value="2" {% if task.priority == 2 %}selected="selected"{% endif %}>Med</option>
+	<option value="1" {% if task.priority == 1 %}selected="selected"{% endif %}>Low</option>
+      </select>
+    </div>
+    <div class="attr is_completed">
+      <input type="checkbox" name="is_completed" {% if task.is_completed %}checked="checked"{% endif %}></input>
+    </div>
+    <button type="button" class="delete_btn" id="delete_{{ task.id }}"> X </button>
   </div>
   <p class="task_details">
-    {{ task.body }}
+    {{ task.details }}
   </p>
-  <!-- </a> -->
 </li>

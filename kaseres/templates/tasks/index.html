@@ -3,8 +3,10 @@
     {% load staticfiles %}
 
     <script type="text/javascript" src="{% static 'kaseres/js/jquery.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'kaseres/js/kaseres.js' %}"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
 
+    <script type="text/javascript" src="{% static 'kaseres/js/kaseres.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'kaseres/css/main.css' %}" />
 
   </head>
@@ -20,7 +22,7 @@
 
     <span>Sort by:</span>
     {% for name, attr in sort_attrs %}
-    <button type="button" class="sort_btn" id="sort_{{attr}}">
+    <button type="button" class="attr attr sort_btn" id="sort_{{attr}}">
       {{name}}
     </button>
     {% endfor %}

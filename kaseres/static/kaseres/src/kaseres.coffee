@@ -1,4 +1,7 @@
 
+# Click on an item, and it becomes an editable version of itself.
+# title, details, due_date -> text input
+
 # -- sort --
 
 bg_colors = {sort: 'LightSteelBlue', regular: 'White'}
@@ -9,15 +12,18 @@ update_tasks = (htmlStr, textStatus, jqXHR) ->
         highlight_col sort_column
         init_delete_btns()
         init_details_display()
+        init_datepicker()
 
 sort_by_attr = (attr_name) ->
         # TODO: set sort
         $.ajax
-            url: '/kaseres/tasks/'
-            cache: false
-            dataType: 'html'
-            success: update_tasks
-            error: -> on_error
+                url: '/kaseres/tasks/'
+                type: 'GET'
+                data: {attr: attr_name}
+                cache: false
+                dataType: 'html'
+                success: update_tasks
+                error: -> on_error
 
 high_els = (els) -> els.css 'background-color', bg_colors.sort
 low_els  = (els) -> els.css 'background-color', bg_colors.regular
@@ -53,8 +59,23 @@ init_sort = ->
 
 # -- add task --
 
+click_submit = ->
+        $.ajax
+                type: 'POST'
+                url: '/kaseres/tasks/create/'
+                data:
+                        title: 'my title'
+                        details: 'my details'
+                        due_date: new Date()
+                        priority: 2
+                dataType: 'html'
+                cache: false
+                error: on_error
+                success: -> console.log 'success.  now add the DOM elements.'
+
 click_add_btn = ->
         alert 'Open form for creating task.'
+        click_submit()
 
 init_add_btn = ->
         $('#add_task').click click_add_btn
@@ -105,10 +126,14 @@ init_toggle_details_btn = ->
 
 # -- init --
 
+init_datepicker = ->
+        $('.date').datepicker {dateFormat: 'MM d, yy'}
+
 init_all = ->
         init_sort()
         init_toggle_details_btn()
         init_add_btn()
         init_delete_btns()
+        init_datepicker()
 
 $(document).ready init_all

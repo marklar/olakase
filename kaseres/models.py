@@ -41,7 +41,7 @@ class Task(models.Model):
         on_delete=models.DO_NOTHING
     )
     title = models.CharField(max_length=MAX_LEN)
-    body = models.TextField()
+    details = models.TextField()
     due_date = models.DateField()
     is_completed = models.BooleanField(default=False)
     PRIORITIES = (
@@ -57,4 +57,4 @@ class Task(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return self.title + ' / ' + self.body
+        return self.title + ' :: ' + self.details
