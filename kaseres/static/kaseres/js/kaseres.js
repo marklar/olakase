@@ -98,7 +98,7 @@
       url: '/kaseres/tasks/create/',
       data: {
         sort_attr: state.sort.column,
-        sort_direction: state.sort.direction[state.sort.column],
+        sort_direction: state.sort.is_asc[state.sort.column],
         title: 'ADD TITLE',
         details: ''
       },
