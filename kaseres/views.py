@@ -36,7 +36,7 @@ def blurfl(f):
 #   }
 #
 
-sort_attrs = [
+SORT_ATTRS = [
     ('Title', 'title'),
     ('Due', 'due_date'),
     ('Priority', 'priority'),
@@ -46,11 +46,13 @@ sort_attrs = [
 @require_safe
 @blurfl
 def index(request):
-    hi_pri_tasks = Task.objects.order_by('-priority')[:5]
+    # hi_pri_tasks = Task.objects.order_by('-priority')[:5]
+    # sorted?
+    tasks = Task.objects.all()
     return {
-        'models': hi_pri_tasks,
-        'template': 'tasks/index.html',
-        'context': {'tasks': hi_pri_tasks, 'sort_attrs': sort_attrs}
+        'models': tasks,
+        'template': get_index_template(request),
+        'context': {'tasks': tasks, 'sort_attrs': SORT_ATTRS}
     }
 
 # @require_POST
@@ -72,7 +74,7 @@ def create_task(request):
     res_url = ''
     return {
         'obj': request.GET,
-        
+        # FIXME
     }
     if accepts_json(request):
         return json_obj_response(request.GET, status=201, location=res_url)
@@ -118,7 +120,7 @@ def create_task(request):
 
 @require_safe
 def read_task(request, task_id):
-    task = Task.objects.get(id=task_id)
+    task = Task.objects.get(task_id)
     # if accepts_json(request):
     if True:
         return json_models_response(task)
@@ -130,12 +132,25 @@ def read_task(request, task_id):
 
 @require_http_methods(['PUT'])
 def update_task(request, task_id):
-    # task_id is a STRING
     pass
 
 
 @require_http_methods(['DELETE'])
 def delete_task(request, task_id):
-    # task_id is a STRING
-    pass
+    Task.objects.get(id=task_id).delete()
+    return HttpResponse('')
 
+# -- helpers --
+
+def get_index_template(request):
+    if request.is_ajax():
+        return 'tasks/all_tasks.html'
+    else:
+        return 'tasks/index.html'
+
+def all_tasks_html():
+    # how sorted?
+    tasks = Task.objects.all()
+    template = loader.get_template('tasks/all_tasks.html')
+    context = Context({'tasks': tasks})
+    return HttpResponse(template.render(context))

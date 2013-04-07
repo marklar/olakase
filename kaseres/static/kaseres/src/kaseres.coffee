@@ -4,9 +4,20 @@
 bg_colors = {sort: 'LightSteelBlue', regular: 'White'}
 sort_column = 'priority'
 
+update_tasks = (htmlStr, textStatus, jqXHR) ->
+        $('#tasks_container').html(htmlStr)
+        highlight_col sort_column
+        init_delete_btns()
+        init_details_display()
+
 sort_by_attr = (attr_name) ->
-        # make ajax call to index, w/ sort=attr_name
-        1
+        # TODO: set sort
+        $.ajax
+            url: '/kaseres/tasks/'
+            cache: false
+            dataType: 'html'
+            success: update_tasks
+            error: -> on_error
 
 high_els = (els) -> els.css 'background-color', bg_colors.sort
 low_els  = (els) -> els.css 'background-color', bg_colors.regular
@@ -40,10 +51,26 @@ init_sort = ->
         bg_colors.regular = $('.attr').css 'background-color'
         highlight_col sort_column
 
+# -- add task --
+
+click_add_btn = ->
+        alert 'Open form for creating task.'
+
+init_add_btn = ->
+        $('#add_task').click click_add_btn
+
 # -- delete task --
 
+on_error = (jqXHR, textStatus, errorThrown) ->
+        console.log errorThrown
+
 delete_task = (id) ->
-        # ajax
+        $.ajax
+            type: 'DELETE'
+            url: "/kaseres/tasks/#{id}/delete/"
+            cache: false
+            error: on_error
+            success: -> console.log 'success!'
 
 click_delete = (evt) ->
         return unless confirm 'Delete this task?'
@@ -57,7 +84,7 @@ init_delete_btns = ->
         
 # -- show/hide details --
 
-details_showing = true
+details_showing = false
 
 set_details_btn_text = ->
         verb = if details_showing then 'Hide' else 'Show'
@@ -68,15 +95,20 @@ click_toggle_details = (evt) ->
         details_showing = not details_showing
         set_details_btn_text()
 
+init_details_display = ->
+        $('.task_details').toggle() if not details_showing
+
 init_toggle_details_btn = ->
         $('#toggle_details').click click_toggle_details
         set_details_btn_text()
+        init_details_display()
 
 # -- init --
 
 init_all = ->
         init_sort()
         init_toggle_details_btn()
+        init_add_btn()
         init_delete_btns()
 
 $(document).ready init_all

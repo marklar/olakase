@@ -14,15 +14,20 @@
     <h1>My Tasks</h1>
 
     <div>
+      <button type="button" id="add_task">Add Task</button>
       <button type="button" id="toggle_details">Hide Details</button>
     </div>
 
-    <h2>Sort by:</h2>
+    <span>Sort by:</span>
     {% for name, attr in sort_attrs %}
-    <button type="button" class="sort_btn" id="sort_{{attr}}">{{name}}</button>
+    <button type="button" class="sort_btn" id="sort_{{attr}}">
+      {{name}}
+    </button>
     {% endfor %}
 
-    {% include "tasks/all_tasks.html" %}
+    <div id="tasks_container">
+      {% include "tasks/all_tasks.html" %}
+    </div>
 
   </body>
 </html>
