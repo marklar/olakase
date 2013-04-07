@@ -2,9 +2,6 @@
 # Click on an item, and it becomes an editable version of itself.
 # title, details, due_date -> text input
 
-foo = ->
-    console.log 'hello'
-
 on_ajax_error = (jqXHR, textStatus, errorThrown) ->
     console.log textStatus
     console.log errorThrown
@@ -15,12 +12,11 @@ state =
     after_create: false
     sort:
         column: 'priority'
-        # asc ('').  desc ('-').
-        direction:
-            title: ''
-            due_date: '-'
-            priority: '-'
-            is_completed: ''
+        is_asc:
+            title: true
+            due_date: true
+            priority: false
+            is_completed: true
 
 # -- sort --
 
@@ -42,13 +38,13 @@ update_tasks = (htmlStr, textStatus, jqXHR) ->
         # TODO: set focus on title
         #
 
-sort_tasks_by = (attr, direction) ->
+sort_tasks_by = (attr, is_asc) ->
     $.ajax
         url: '/kaseres/tasks/'
         type: 'GET'
         data:
             sort_attr: attr
-            sort_direction: direction
+            sort_is_asc: is_asc
         cache: false
         dataType: 'html'
         success: update_tasks
@@ -60,8 +56,7 @@ low_els  = (els) -> els.removeClass 'highlighted'
 highlight_column = (attr) -> high_els $(".attr.#{attr}")
 
 toggle_sort_dir = (attr) ->
-    state.sort.direction[attr] =
-        if state.sort.direction[attr] == '-' then '' else '-'
+    state.sort.is_asc[attr] = not state.sort.is_asc[attr]
 
 set_sort_state = (attr) ->
     if state.sort.column == attr
@@ -69,14 +64,21 @@ set_sort_state = (attr) ->
     else
         state.sort.column = attr
 
+set_sort_btn_imgs = (attr) ->
+    $('.sort_arrow').hide()
+    dir = if state.sort.is_asc[attr] then 'up' else 'dn'
+    $("##{dir}_arrow_#{attr}").show()
+
 click_sort_btn = (evt) ->
     attr = this.id.match(/^sort_(.*)$/)[1]
     set_sort_state attr
-    sort_tasks_by attr, state.sort.direction[attr]
+    set_sort_btn_imgs attr
+    sort_tasks_by attr, state.sort.is_asc[attr]
     highlight_column attr
 
 init_sort_btns = ->
     $('.sort_btn').click click_sort_btn
+    set_sort_btn_imgs state.sort.column
 
 init_sort = ->
     init_sort_btns()

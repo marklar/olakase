@@ -22,8 +22,12 @@
 
     <span>Sort by:</span>
     {% for name, attr in sort_attrs %}
-    <button type="button" class="attr attr sort_btn" id="sort_{{attr}}">
-      {{name}}
+    <button type="button" class="attr sort_btn" id="sort_{{ attr }}">
+      {{ name }}
+      <img id="up_arrow_{{ attr }}" class="sort_arrow" alt="up"
+	   src="{% static 'kaseres/img/icon_up_sort_arrow.png' %}" />
+      <img id="dn_arrow_{{ attr }}" class="sort_arrow" alt="dn"
+	   src="{% static 'kaseres/img/icon_down_sort_arrow.png' %}" />
     </button>
     {% endfor %}
 

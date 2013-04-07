@@ -51,9 +51,7 @@ def index(request):
     """
     If ajax, return the HTML for just the list of tasks.
     """
-    sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
-    sort_dir = request.GET['sort_direction'] if 'sort_direction' in request.GET else '-'
-    tasks = Task.objects.order_by(sort_dir + sort_attr)
+    tasks = Task.objects.order_by(get_sort(request))
     return {
         'models': tasks,
         'template': get_index_template(request.is_ajax()),
@@ -67,10 +65,8 @@ def create_task(request):
     containing the URL to the newly created resource.
     """
     task = create_task_from_data(request)
-
-    sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
-    sort_dir = request.GET['sort_direction'] if 'sort_direction' in request.GET else '-'
-    all_tasks = [t for t in Task.objects.exclude(id=task.id).order_by(sort_dir + sort_attr)]
+    q_set = Task.objects.exclude(id=task.id).order_by(get_sort(request))
+    all_tasks = [t for t in q_set]
     all_tasks.insert(0, task)
 
     template = loader.get_template('tasks/all_tasks.html')
@@ -86,6 +82,23 @@ def create_task(request):
     # return make_response(
     #     template.render(context), 'text/html', status=201, location=res_url)
     # return json_model_response(task, status=201, location=res_url)
+
+# helper, not a view.
+def get_sort(request):
+    sort_prefix = get_sort_prefix(request)
+    sort_attr = get_sort_attr(request)
+    return sort_prefix + sort_attr
+
+# helper, not a view.
+def get_sort_attr(request):
+    a = 'sort_attr'
+    return request.GET[a] if a in request.GET else 'priority'
+
+# helper, not a view.
+def get_sort_prefix(request):
+    a = 'sort_is_asc'
+    is_asc = request.GET[a] == 'true' if a in request.GET else False
+    return '' if is_asc else '-'
 
 # helper, not a view.
 def create_task_from_data(request):
