@@ -59,6 +59,10 @@ init_sort = ->
 
 # -- add task --
 
+submit_success = (htmlStr, textStatus, jqXHR) ->
+        console.log 'success.  now add the DOM elements.'
+        console.log htmlStr
+
 click_submit = ->
         $.ajax
                 type: 'POST'
@@ -71,7 +75,7 @@ click_submit = ->
                 dataType: 'html'
                 cache: false
                 error: on_error
-                success: -> console.log 'success.  now add the DOM elements.'
+                success: submit_success
 
 click_add_btn = ->
         alert 'Open form for creating task.'

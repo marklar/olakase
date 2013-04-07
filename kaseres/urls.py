@@ -27,19 +27,19 @@ urlpatterns = patterns(
     url(r'^tasks/$', views.index, name='index'),
 
     # POST (create)
-    # ex: /kaseres/create/
+    # ex: /kaseres/tasks/create/
     url(r'^tasks/create/$', views.create_task, name='create_task'),
 
     # GET (read)
-    # ex: /kaseres/12/read/
+    # ex: /kaseres/tasks/12/read/
     url(r'^tasks/(?P<task_id>\d+)/read/', views.read_task, name='read_task'),
 
     # PUT (update) - idempotent w/ same params
-    # ex: /kaseres/12/update/
+    # ex: /kaseres/tasks/12/update/
     # Where do we pass in the k:v pairs?  PUT data?
     url(r'^tasks/(?P<task_id>\d+)/update/$', views.update_task, name='update_task'),
 
     # DELETE (delete)
-    # ex: /kaseres/12/delete/
+    # ex: /kaseres/tasks/12/delete/
     url(r'^tasks/(?P<task_id>\d+)/delete/$', views.delete_task, name='delete_task'),
 )
