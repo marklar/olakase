@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods, require_safe, require_POST
 from django.template import Context, loader
+from datetime import datetime
 
 # from kaseres.models import Task, User, TaskList
 from kaseres.models import Task
@@ -51,8 +52,8 @@ def index(request):
     If ajax, return the HTML for just the list of tasks.
     """
     # hi_pri_tasks = Task.objects.order_by('-priority')[:5]
-    attr = request.GET['attr'] if 'attr' in request.GET else 'priority'
-    tasks = Task.objects.order_by('-' + attr)
+    sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
+    tasks = Task.objects.order_by('-' + sort_attr)
     return {
         'models': tasks,
         'template': get_index_template(request.is_ajax()),
@@ -65,20 +66,33 @@ def create_task(request):
     Response: "201 Created" with a Location header
     containing the URL to the newly created resource.
     """
-    # create the task
-    # use data: request.POST
-    task = Task(title='foo', details='bar',
-                due_date='04/10/2013',
-                is_completed=False,
-                priority=2)
+    sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
+    tasks = Task.objects.order_by('-' + sort_attr)
+
+    due_date = datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
+    is_completed = request.POST['is_completed'] == 'true'
+    task = Task(title = request.POST['title'],
+                details = request.POST['details'],
+                due_date = due_date,
+                is_completed = is_completed,
+                priority = int(request.POST['priority']))
     task.save()
 
-    # FIXME -- return the *HTML* for the new task.
+    all_tasks = [t for t in tasks]
+    all_tasks.insert(0, task)
+
+    template = loader.get_template('tasks/all_tasks.html')
+    context = Context({'tasks': all_tasks})
     res_url = ''
-    template = loader.get_template('tasks/one_task.html')
-    context = Context({'task': task})
     return make_response(
         template.render(context), 'text/html', status=201, location=res_url)
+
+    # FIXME -- return the *HTML* for the new task.
+    # res_url = ''
+    # template = loader.get_template('tasks/one_task.html')
+    # context = Context({'task': task})
+    # return make_response(
+    #     template.render(context), 'text/html', status=201, location=res_url)
     # return json_model_response(task, status=201, location=res_url)
 
 @require_safe
@@ -104,7 +118,6 @@ def read_task(request, task_id):
         return xml_models_response(task)
     else:
         return HttpResponse('<h1>HTML</h1>')
-
 
 @require_http_methods(['PUT'])
 def update_task(request, task_id):

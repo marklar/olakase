@@ -8,6 +8,9 @@ bg_colors = {sort: 'LightSteelBlue', regular: 'White'}
 sort_column = 'priority'
 
 update_tasks = (htmlStr, textStatus, jqXHR) ->
+        # If this is called after 'create',
+        # we should animate the appearance of the first task in the list,
+        # and we should change its bg_color to show that it's out of sort order.
         $('#tasks_container').html(htmlStr)
         highlight_col sort_column
         init_delete_btns()
@@ -19,7 +22,7 @@ sort_by_attr = (attr_name) ->
         $.ajax
                 url: '/kaseres/tasks/'
                 type: 'GET'
-                data: {attr: attr_name}
+                data: {sort_attr: attr_name}
                 cache: false
                 dataType: 'html'
                 success: update_tasks
@@ -59,23 +62,21 @@ init_sort = ->
 
 # -- add task --
 
-submit_success = (htmlStr, textStatus, jqXHR) ->
-        console.log 'success.  now add the DOM elements.'
-        console.log htmlStr
-
 click_submit = ->
         $.ajax
                 type: 'POST'
                 url: '/kaseres/tasks/create/'
                 data:
-                        title: 'my title'
-                        details: 'my details'
-                        due_date: new Date()
+                        sort_attr: sort_column
+                        title: 'bobo'
+                        details: 'jungle'
+                        due_date: 'February 1, 2013'
                         priority: 2
+                        is_completed: true
                 dataType: 'html'
                 cache: false
                 error: on_error
-                success: submit_success
+                success: update_tasks
 
 click_add_btn = ->
         alert 'Open form for creating task.'
@@ -87,7 +88,9 @@ init_add_btn = ->
 # -- delete task --
 
 on_error = (jqXHR, textStatus, errorThrown) ->
+        console.log textStatus
         console.log errorThrown
+        console.log jqXHR
 
 delete_task = (id) ->
         $.ajax
