@@ -45,7 +45,7 @@ def index(request):
     """
     If ajax, return the HTML for just the list of tasks.
     """
-    tasks = Task.objects.order_by(get_sort(request))
+    tasks = Task.objects.order_by(get_sort(request.GET))
     return {
         'models': tasks,
         'template': get_index_template(request.is_ajax()),
@@ -62,8 +62,8 @@ def create_task(request):
     Response: "201 Created" with a Location header
     containing the URL to the newly created resource.
     """
-    task = create_task_from_data(request)
-    q_set = Task.objects.exclude(id=task.id).order_by(get_sort(request))
+    task = create_task_from_data(request.POST)
+    q_set = Task.objects.exclude(id=task.id).order_by(get_sort(request.POST))
     all_tasks = [t for t in q_set]
     all_tasks.insert(0, task)
 
@@ -127,46 +127,47 @@ def delete_task(request, task_id):
 
 # -- helpers --
 
-def get_sort(request):
-    sort_prefix = get_sort_prefix(request)
-    sort_attr = get_sort_attr(request)
+def get_sort(req_data):
+    sort_prefix = get_sort_prefix(req_data)
+    sort_attr = get_sort_attr(req_data)
     return sort_prefix + sort_attr
 
-def get_sort_attr(request):
+def get_sort_attr(req_data):
     a = 'sort_attr'
-    return request.GET[a] if a in request.GET else 'priority'
+    return req_data[a] if a in req_data else 'priority'
 
-def get_sort_prefix(request):
+def get_sort_prefix(req_data):
     a = 'sort_is_asc'
-    is_asc = request.GET[a] == 'true' if a in request.GET else False
+    is_asc = req_data[a] == 'true' if a in req_data else False
     return '' if is_asc else '-'
 
-def create_task_from_data(request):
-    task = Task(title = request.POST['title'],
-                details = request.POST['details'],
-                due_date = get_due_date(request),
-                is_completed = get_is_completed(request),
-                priority = get_priority(request))
+def create_task_from_data(req_data):
+    task = Task(title = req_data['title'],
+                details = req_data['details'],
+                due_date = get_due_date(req_data),
+                is_completed = get_is_completed(req_data),
+                priority = get_priority(req_data))
     task.save()
     return task
 
-def get_due_date(request):
-    if 'due_date' in request.POST:
-        return datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
+def get_due_date(req_data):
+    if 'due_date' in req_data:
+        return datetime.strptime(req_data['due_date'], '%B %d, %Y').date()
     else:
         return date.today()
 
-def get_priority(request):
-    if 'priority' in request.POST:
-        return int(request.POST['priority'])
+def get_priority(req_data):
+    if 'priority' in req_data:
+        return int(req_data['priority'])
     else:
         return 2
 
-def get_is_completed(request):
-    if 'is_completed' in request.POST:
-        return request.POST['is_completed'] == 'true'
+def get_is_completed(req_data):
+    if 'is_completed' in req_data:
+        return req_data['is_completed'] == 'true'
     else:
         return False
+
 def get_index_template(is_ajax):
     if is_ajax:
         return 'tasks/all_tasks.html'

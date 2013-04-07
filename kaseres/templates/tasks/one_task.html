@@ -1,11 +1,17 @@
 <li class="task" id="task_{{ task.id }}">
+
   <div>
-    <div class="attr title">{{ task.title }}</div>
-    <div class="attr due_date">
+    <div id="task_title_{{ task.id }}" class="attr title">
+      {{ task.title }}
+    </div>
+
+    <div id="task_due_date_{{ task.id }}" class="attr due_date">
       <input type="text" class="date" value="{{ task.due_date }}" />
     </div>
-    <div class="attr priority">
+
+    <div id="task_priority_{{ task.id }}" class="attr priority">
       <select name="priority" size="1">
+
 	{% for n,s in priorities %}
 	<option
 	   value="{{ n }}"
@@ -13,14 +19,22 @@
 	  {{ s }}
 	</option>
 	{% endfor %}
+
       </select>
     </div>
-    <div class="attr is_completed">
-      <input type="checkbox" name="is_completed" {% if task.is_completed %}checked="checked"{% endif %}></input>
+
+    <div id="task_is_completed_{{ task.id }}" class="attr is_completed">
+      <input type="checkbox" name="is_completed"
+	     {% if task.is_completed %}checked="checked"{% endif %} />
     </div>
-    <button type="button" class="delete_btn" id="delete_{{ task.id }}"> X </button>
+
+    <button type="button" id="delete_{{ task.id }}" class="delete_btn">
+      X
+    </button>
   </div>
-  <div class="task_details">
+
+  <div id="task_details_{{ task.id }}" class="task_details">
     <p>{{ task.details }}</p>
   </div>
+
 </li>

@@ -63,7 +63,7 @@ highlight_column = (attr) ->
     $(".attr.#{attr}").addClass 'highlighted'
 
 click_sort_btn = (evt) ->
-    attr = this.id.match(/^sort_(.*)$/)[1]
+    attr = this.id.match(/^sort_(.+)$/)[1]
     set_sort_state attr
     set_sort_btn_imgs attr
     sort_tasks_by attr, state.sort.is_asc[attr]
@@ -76,7 +76,40 @@ init_sort = ->
 
 # -- edit task --
 
-# 
+save_title = (evt) ->
+    # Set html to new title.
+    new_title = $.trim $(this).val()
+    $("#task_title_#{evt.data.task_id}").html(new_title).click(edit_title)
+    if new_title != evt.data.prev_title
+        console.log "Save task #{evt.data.task_id}'s new title: #{new_title}"
+        state.after_create = true  # TODO: rename
+        $.ajax
+            type: 'PUT'
+            url: "/kaseres/tasks/#{evt.data.task_id}/update/"
+            data:
+                sort_attr: state.sort.column
+                sort_direction: state.sort.is_asc[state.sort.column]
+                title: new_title
+            dataType: 'html'
+            cache: false
+            error: on_ajax_error
+            success: update_tasks
+
+edit_title = ->
+    # Remove onClick handler.
+    $(this).unbind()
+    # Capture current child (TextNode) value.
+    task_id = this.id.match(/^task_title_(.+)$/)[1]
+    prev_title = $.trim $(this).html()
+    # Replace with <input type="text"> with that value.
+    $(this).html "<input id='temp_edit' type='text' value='#{prev_title}' />"
+    $('#temp_edit').focus()
+    # When it loses focus, we're done.
+    evt_data = {task_id: task_id, prev_title: prev_title}
+    $('#temp_edit').blur evt_data, save_title
+
+init_edit = ->
+    $('.attr.title').click edit_title
 
 # -- add task --
 
@@ -133,7 +166,7 @@ init_details_display = ->
     $('.task_details').toggle() if not state.details_showing
 
 init_toggle_details_btn = ->
-    $('#toggle_details').click click_toggle_details
+    $('#toggle_details').click(click_toggle_details).hide()
     set_details_btn_text()
     init_details_display()
 
@@ -148,5 +181,6 @@ init_all = ->
     init_add_btn()
     init_delete_btns()
     init_datepicker()
+    init_edit()
 
 $(document).ready init_all
