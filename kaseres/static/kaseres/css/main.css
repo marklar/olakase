@@ -1,3 +1,7 @@
+body {
+    font-family: ‘Lucida Sans Unicode’, ‘Lucida Grande’, sans-serif;
+}
+
 #tasks {
     margin: 2px;
     list-style-type: none;
@@ -6,20 +10,32 @@
 .task {
     margin: 2px;
     padding: 5px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: navy;
+    border: solid 1px lightgray;
 }
 
 .delete_btn {
     display: inline-block;
-    color: red;
+    color: orange;
+}
+
+.highlighted {
+/*
+    color: Navy;
+    background-color: PaleGreen;
+*/
+    color: White;
+    background-color: DarkSeaGreen;
 }
 
 .attr {
+    padding: 5px;
     width: 150px;
     display: inline-block;
-    /* border: 1px solid red; */
+}
+
+.task_details {
+   padding-left: 5px;
+   padding-right: 5px;
 }
 
 .title {
