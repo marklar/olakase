@@ -75,14 +75,11 @@ def create_task(request):
 
     # FIXME -- return the *HTML* for the new task.
     res_url = ''
-    return json_model_response(task, status=201, location=res_url)
-
-    # tasks = Task.objects.all()
-    # template = loader.get_template('tasks/all_tasks.html')
-    # context = Context({'tasks': tasks})
-    # return make_response(
-    #     template.render(context), 'text/html', status, location)
-
+    template = loader.get_template('tasks/one_task.html')
+    context = Context({'task': task})
+    return make_response(
+        template.render(context), 'text/html', status=201, location=res_url)
+    # return json_model_response(task, status=201, location=res_url)
 
 @require_safe
 def index_old(request):
