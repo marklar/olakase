@@ -4,25 +4,37 @@
 
 # -- sort --
 
-bg_colors = {sort: 'LightSteelBlue', regular: 'White'}
-sort_column = 'priority'
+bg_colors =
+        sort: 'LightSteelBlue'
+        regular: 'White'  # placeholder
+
+# asc ('').  desc ('-').
+sort_state =
+        column: 'priority'
+        direction:
+                title: ''
+                due_date: '-'
+                priority: '-'
+                is_completed: ''
 
 update_tasks = (htmlStr, textStatus, jqXHR) ->
         # If this is called after 'create',
         # we should animate the appearance of the first task in the list,
         # and we should change its bg_color to show that it's out of sort order.
         $('#tasks_container').html(htmlStr)
-        highlight_col sort_column
+        highlight_col sort_state.column
         init_delete_btns()
         init_details_display()
         init_datepicker()
 
-sort_by_attr = (attr_name) ->
+sort_tasks_by = (attr, direction) ->
         # TODO: set sort
         $.ajax
                 url: '/kaseres/tasks/'
                 type: 'GET'
-                data: {sort_attr: attr_name}
+                data:
+                        sort_attr: attr
+                        sort_direction: direction
                 cache: false
                 dataType: 'html'
                 success: update_tasks
@@ -31,26 +43,30 @@ sort_by_attr = (attr_name) ->
 high_els = (els) -> els.css 'background-color', bg_colors.sort
 low_els  = (els) -> els.css 'background-color', bg_colors.regular
 
-highlight_col = (attr_name) ->
-        high_els $(".attr.#{attr_name}")
-        $("#sort_#{attr_name}").prop 'disabled', true
+highlight_col = (attr) ->
+        high_els $(".attr.#{attr}")
 
-unhighlight_col = (attr_name) ->
-        low_els $(".attr.#{attr_name}")
+unhighlight_col = (attr) ->
+        low_els $(".attr.#{attr}")
 
 unhighlight_task = (id) ->
-        low_els $("##{id} .#{sort_column}")
+        low_els $("##{id} .#{sort_state.column}")
 
-sort_by = (attr_name) ->
-        sort_by_attr attr_name
-        highlight_col attr_name
-        sort_column = attr_name
+toggle_sort_dir = (attr) ->
+        sort_state.direction[attr] =
+                if sort_state.direction[attr] == '-' then '' else '-'
+
+set_sort_state = (attr) ->
+        if sort_state.column == attr
+                toggle_sort_dir attr
+        else
+                sort_state.column = attr
 
 click_sort_btn = (evt) ->
-        $('.sort_btn').prop 'disabled', false
-        unhighlight_col sort_column
-        attr_name = this.id.match(/^sort_(.*)$/)[1]
-        sort_by attr_name
+        attr = this.id.match(/^sort_(.*)$/)[1]
+        set_sort_state attr
+        sort_tasks_by attr, sort_state.direction[attr]
+        highlight_col attr
 
 init_sort_btns = ->
         $('.sort_btn').click click_sort_btn
@@ -58,7 +74,7 @@ init_sort_btns = ->
 init_sort = ->
         init_sort_btns()
         bg_colors.regular = $('.attr').css 'background-color'
-        highlight_col sort_column
+        highlight_col sort_state.column
 
 # -- add task --
 
@@ -67,7 +83,8 @@ click_submit = ->
                 type: 'POST'
                 url: '/kaseres/tasks/create/'
                 data:
-                        sort_attr: sort_column
+                        sort_attr: sort_state.column
+                        sort_direction: sort_state.direction[sort_state.column]
                         title: 'bobo'
                         details: 'jungle'
                         due_date: 'February 1, 2013'

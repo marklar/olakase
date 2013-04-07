@@ -51,9 +51,9 @@ def index(request):
     """
     If ajax, return the HTML for just the list of tasks.
     """
-    # hi_pri_tasks = Task.objects.order_by('-priority')[:5]
     sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
-    tasks = Task.objects.order_by('-' + sort_attr)
+    sort_dir = request.GET['sort_direction'] if 'sort_direction' in request.GET else '-'
+    tasks = Task.objects.order_by(sort_dir + sort_attr)
     return {
         'models': tasks,
         'template': get_index_template(request.is_ajax()),
