@@ -1,12 +1,9 @@
-<!-- <a href="{% url 'kaseres:read_task' task.id %}"></a> -->
 <li class="task" id="task_{{ task.id }}">
   <div>
     <div class="attr title">{{ task.title }}</div>
     <div class="attr due_date">
       <input type="text" class="date" value="{{ task.due_date }}" />
-      <!-- <input type="date" class="date" value="{{ task.due_date }}" /> -->
     </div>
-    <!-- <div class="attr priority">{{ task.priority }}</div> -->
     <div class="attr priority">
       <select name="priority" size="1">
 	<option value="3" {% if task.priority == 3 %}selected="selected"{% endif %}>High</option>

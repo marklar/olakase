@@ -66,19 +66,11 @@ def create_task(request):
     Response: "201 Created" with a Location header
     containing the URL to the newly created resource.
     """
+    task = create_task_from_data(request)
+
     sort_attr = request.GET['sort_attr'] if 'sort_attr' in request.GET else 'priority'
-    tasks = Task.objects.order_by('-' + sort_attr)
-
-    due_date = datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
-    is_completed = request.POST['is_completed'] == 'true'
-    task = Task(title = request.POST['title'],
-                details = request.POST['details'],
-                due_date = due_date,
-                is_completed = is_completed,
-                priority = int(request.POST['priority']))
-    task.save()
-
-    all_tasks = [t for t in tasks]
+    sort_dir = request.GET['sort_direction'] if 'sort_direction' in request.GET else '-'
+    all_tasks = [t for t in Task.objects.exclude(id=task.id).order_by(sort_dir + sort_attr)]
     all_tasks.insert(0, task)
 
     template = loader.get_template('tasks/all_tasks.html')
@@ -94,6 +86,18 @@ def create_task(request):
     # return make_response(
     #     template.render(context), 'text/html', status=201, location=res_url)
     # return json_model_response(task, status=201, location=res_url)
+
+# helper, not a view.
+def create_task_from_data(request):
+    due_date = datetime.strptime(request.POST['due_date'], '%B %d, %Y').date()
+    is_completed = request.POST['is_completed'] == 'true'
+    task = Task(title = request.POST['title'],
+                details = request.POST['details'],
+                due_date = due_date,
+                is_completed = is_completed,
+                priority = int(request.POST['priority']))
+    task.save()
+    return task
 
 @require_safe
 def index_old(request):
