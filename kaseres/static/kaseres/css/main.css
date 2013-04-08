@@ -22,8 +22,8 @@ li.task div div {
 }
 
 .sort_btn {
-    background: #E3E3EC;
-    font-size: 14pt;
+    background-color: #F8F8FA;
+    font-size: 11pt;
     margin: 5px;
     padding: 10px;
     margin-bottom: 4px;
@@ -36,7 +36,7 @@ li.task div div {
 
 .highlighted {
     color: Black;
-    background-color: #E3E3EC;
+    background-color: #F8F8FA;
 }
 
 .attr {
