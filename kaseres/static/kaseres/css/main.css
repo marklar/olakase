@@ -64,8 +64,17 @@ li.task div div {
 #sort_priority {
     width: 120px;
 }
+.task_priority_select {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .is_completed {
     width: 110px;
+}
+.task_is_completed_checkbox {
+    margin-left: 50px;
 }
 #sort_is_completed {
     width: 110px;
