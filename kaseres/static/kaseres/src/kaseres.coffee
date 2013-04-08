@@ -136,6 +136,7 @@ init_edit = (task_id) ->
     $("#{ancestor}.task_is_completed_checkbox").change save_is_completed
     $("#{ancestor}.task_due_date_input").change save_due_date
     $("#{ancestor}.task_due_date_input").datepicker {dateFormat: 'MM d, yy'}
+    # $("#{ancestor}.task_due_date_input").datepicker {dateFormat: 'M d, yy'}
 
 # -- add task --
 

@@ -15,9 +15,6 @@
 
     <h1>My Tasks</h1>
 
-    
-    <!-- src="{% static 'kaseres/img/orange-add-button-md.png' %}" -->
-
     <div id="top_buttons">
       <input type="image" id="add_task"
 	     src="{% static 'kaseres/img/Bookmark.gif' %}"
@@ -26,7 +23,6 @@
       <button type="button" id="toggle_details">Hide Details</button>
     </div>
 
-    <!-- <span>Sort by:</span> -->
     {% for name, attr in sort_attrs %}
     <button type="button" class="attr sort_btn" id="sort_{{ attr }}">
       {{ name }}

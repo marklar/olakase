@@ -2,12 +2,15 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods, require_safe, require_POST
 from django.template import Context, loader
 from django.shortcuts import render
+from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime, date
 
 # from kaseres.models import Task, User, TaskList
 from kaseres.models import Task
 from kaseres.accepts import accepts_json, accepts_html, accepts_xml
 from kaseres.responses import json_models_response, json_obj_response, xml_models_response, xml_obj_response, make_response
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,11 +28,11 @@ def restify(f):
     """
     def wrapper(request):
         d = f(request)
-        if accepts_json(request):
+        if accepts_html(request):
+            return render(request, d['template'], d['context'])
+        elif accepts_json(request):
             return json_models_response(d['models'])
-        # FIXME
-        # elif accepts_xml(request):
-        elif False:
+        elif accepts_xml(request):
             return xml_models_response(d['models'])
         else:
             return render(request, d['template'], d['context'])
@@ -60,51 +63,49 @@ def index(request):
         }
     }
 
-@require_safe
-def index_old(request):
-    tasks = Task.objects.order_by(get_sort(request.GET))
-    if accepts_json(request):
-        return json_models_response(tasks)
-    elif False: # accepts_xml(request):
-        return xml_models_response(tasks)
-    else:
-        context = {
-            'tasks': tasks,
-            'priorities': Task.PRIORITIES
-        }
-        return render(request,
-                      get_index_template(request.is_ajax()),
-                      context)
-
 @require_POST
 def create_task(request):
     """
     Response: "201 Created" with a Location header
     containing the URL to the newly created resource.
     """
-    task = create_task_from_data(request.POST)
-    if request.is_ajax():
+    task = create_task_from_data(request.REQUEST)
+    # location = reverse('read_task', kwargs={'task_id': task.id})
+    # location = reverse(views.read_task, kwargs={'task_id': task.id})
+    # location = reverse('read_task') # , args=[task.id])
+    location = 'What should this be?'
+    if accepts_json(request):
+        return json_models_response(task, status=201, location='')
+    elif accepts_xml(request):
+        return xml_models_response(task, status=201, location='')
+    else:
         template = loader.get_template('tasks/one_task.html')
         context = Context({
             'task': task,
             'priorities': Task.PRIORITIES
         })
-        res_url = ''  # FIXME
         return make_response(
-            template.render(context), 'text/html', status=201, location=res_url)
-    else:
-        return json_model_response(task, status=201, location=res_url)
+            template.render(context), 'text/html', status=201, location='')
+            
 
 @require_safe
 def read_task(request, task_id):
-    task = Task.objects.get(id=task_id)
-    # if accepts_json(request):
-    if True:
-        return json_models_response(task)
+    try:
+        task = Task.objects.get(id=task_id)
+    except ObjectDoesNotExist:
+        return HttpResponse('Does not exist.', status=404)
+
+    if accepts_html(request):
+        return render(request, 'tasks/one_task.html', {
+            'task': task,
+            'priorities': Task.PRIORITIES
+        })
     elif accepts_xml(request):
         return xml_models_response(task)
+    elif accepts_json(request):
+        return json_models_response(task)
     else:
-        return HttpResponse('<h1>HTML</h1>')
+        return render(request, 'tasks/one_task.html', {'task': task})
 
 @require_POST
 def update_task(request, task_id):
@@ -114,16 +115,37 @@ def update_task(request, task_id):
     @require_http_methods(['PUT'])
     use tastypie: https://github.com/toastdriven/django-tastypie
     """
-    task = Task.objects.get(id=task_id)
-    update_task_from_data(task, request.POST)
-    # FIXME: return json/xml/html
-    return HttpResponse('')
+    try:
+        task = Task.objects.get(id=task_id)
+    except ObjectDoesNotExist:
+        return HttpResponse('Does not exist.', status=500)
+
+    update_task_from_data(task, request.REQUEST)  # POST
+
+    if accepts_html(request):
+        return HttpResponse('success')
+    elif accepts_xml(request):
+        return xml_obj_response({'success': True})
+    elif accepts_json(request):
+        return json_obj_response({'success': True})
+    else:
+        return render(request, 'tasks/one_task.html', {'task': task})
 
 @require_http_methods(['DELETE'])
 def delete_task(request, task_id):
-    Task.objects.get(id=task_id).delete()
-    # FIXME: return json/xml/html
-    return HttpResponse('')
+    try:
+        Task.objects.get(id=task_id).delete()
+    except ObjectDoesNotExist:
+        return HttpResponse('Does not exist.', status=500)
+
+    if accepts_html(request):
+        return HttpResponse('success')
+    elif accepts_xml(request):
+        return xml_obj_response({'success': True})
+    elif accepts_json(request):
+        return json_obj_response({'success': True})
+    else:
+        return HttpResponse('success')
 
 # -- helpers --
 
@@ -164,7 +186,10 @@ def create_task_from_data(req_data):
     return task
 
 def date_from_str(s):
-    return datetime.strptime(s, '%B %d, %Y').date()
+    try:
+        return datetime.strptime(s, '%b %d, %Y').date()
+    except ValueError:
+        return datetime.strptime(s, '%B %d, %Y').date()
 
 def get_due_date(req_data):
     if 'due_date' in req_data:
