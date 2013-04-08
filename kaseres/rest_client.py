@@ -82,6 +82,8 @@ try:
         update(mime, get_id(), {'title': sys.argv[4]})
     elif verb == 'delete':
         delete(mime, get_id())
+    elif verb == 'index':
+        index(mime)
     else:
         print "What verb?"
 except IndexError:
@@ -90,5 +92,4 @@ except IndexError:
     print "   %s read   <mime> <id>" % sys.argv[0]
     print "   %s update <mime> <id> <title>" % sys.argv[0]
     print "   %s delete <mime> <id>" % sys.argv[0]
-               
-               
+    print "   %s index  <mime>" % sys.argv[0]
