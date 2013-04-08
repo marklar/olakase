@@ -11,7 +11,6 @@ from kaseres.models import Task
 from kaseres.accepts import accepts_json, accepts_html, accepts_xml
 from kaseres.responses import json_models_response, json_obj_response, xml_models_response, xml_obj_response, make_response
 
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -93,6 +92,7 @@ def read_task(request, task_id):
     try:
         task = Task.objects.get(id=task_id)
     except ObjectDoesNotExist:
+        # FIXME: change format.
         return HttpResponse('Does not exist.', status=404)
 
     if accepts_html(request):
@@ -118,6 +118,7 @@ def update_task(request, task_id):
     try:
         task = Task.objects.get(id=task_id)
     except ObjectDoesNotExist:
+        # FIXME: change format.
         return HttpResponse('Does not exist.', status=500)
 
     update_task_from_data(task, request.REQUEST)  # POST
@@ -136,6 +137,7 @@ def delete_task(request, task_id):
     try:
         Task.objects.get(id=task_id).delete()
     except ObjectDoesNotExist:
+        # FIXME: change format.
         return HttpResponse('Does not exist.', status=500)
 
     if accepts_html(request):
