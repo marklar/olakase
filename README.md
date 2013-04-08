@@ -21,32 +21,3 @@ Requirements:
 * REST API:
     * RESTful API allowing 3rd-party apps to trigger all the same actions
 
-
-Data Model
-----------
-
-User
-* id
-* first_name : string
-* last_name : string
-* email : EmailField
-
-List
-* id
-* user_id : int
-* name : string
-
-Entry
-* id
-* list_id : int
-* title : string
-* body : string
-* priority : int
-* due date : datetime
-* completed : boolean
-
-Immutable.  Like Datamic.
-Every time we change an entry in the list, we create a new list?
-Use CommaSeparatedIntegerField to store the lists?
-
-
