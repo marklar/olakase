@@ -9,7 +9,7 @@ on_ajax_error = (jqXHR, textStatus, errorThrown) ->
 
 state =
     details_showing: false
-    after_create: false
+    # after_create: false
     sort:
         column: 'priority'
         is_asc:
@@ -20,20 +20,13 @@ state =
 
 # -- sort --
 
-update_tasks = (htmlStr, textStatus, jqXHR) ->
+display_sorted_tasks = (htmlStr, textStatus, jqXHR) ->
     $('#tasks_container').html(htmlStr)
     highlight_column state.sort.column
     init_delete_btns()
     init_details_display()
     init_datepicker()
-
-    if state.after_create
-        state.after_create = false
-        $('#tasks > li').filter(':first').toggle().toggle 200
-        $('#tasks > li:first .attr').removeClass 'highlighted'
-        #
-        # TODO: set focus on title
-        #
+    init_edit()
 
 sort_tasks_by = (attr, is_asc) ->
     $.ajax
@@ -44,7 +37,7 @@ sort_tasks_by = (attr, is_asc) ->
             sort_is_asc: is_asc
         cache: false
         dataType: 'html'
-        success: update_tasks
+        success: display_sorted_tasks
         error: -> on_ajax_error
 
 set_sort_state = (attr) ->
@@ -76,45 +69,65 @@ init_sort = ->
 
 # -- edit task --
 
+init_datepicker = ->
+    $('.date').datepicker {dateFormat: 'MM d, yy'}
+
+show_saved = (evt) ->
+    console.log 'saved!'
+
 save_title = (evt) ->
     # Set html to new title.
     new_title = $.trim $(this).val()
-    $("#task_title_#{evt.data.task_id}").html(new_title).click(edit_title)
+    $("#task_title_#{evt.data.task_id}").
+        html(new_title).
+        click(edit_title)
+    # Update the task as necessary.
     if new_title != evt.data.prev_title
+        if state.sort.column == 'title'
+            $("#task_title_#{evt.data.task_id}").removeClass 'highlighted'
         console.log "Save task #{evt.data.task_id}'s new title: #{new_title}"
-        state.after_create = true  # TODO: rename
         $.ajax
             type: 'PUT'
             url: "/kaseres/tasks/#{evt.data.task_id}/update/"
             data:
-                sort_attr: state.sort.column
-                sort_direction: state.sort.is_asc[state.sort.column]
                 title: new_title
-            dataType: 'html'
+            dataType: 'html'  # perhaps json, w/ sorting info?
             cache: false
             error: on_ajax_error
-            success: update_tasks
+            success: show_saved
 
 edit_title = ->
     # Remove onClick handler.
     $(this).unbind()
-    # Capture current child (TextNode) value.
+    # Get previous title (and task_id).
     task_id = this.id.match(/^task_title_(.+)$/)[1]
     prev_title = $.trim $(this).html()
-    # Replace with <input type="text"> with that value.
+    # Replace text with text-input.
     $(this).html "<input id='temp_edit' type='text' value='#{prev_title}' />"
-    $('#temp_edit').focus()
-    # When it loses focus, we're done.
-    evt_data = {task_id: task_id, prev_title: prev_title}
-    $('#temp_edit').blur evt_data, save_title
+    # Give it focus.  When it loses it, we're done.
+    $('#temp_edit').
+        focus().
+        blur {task_id: task_id, prev_title: prev_title}, save_title
 
 init_edit = ->
     $('.attr.title').click edit_title
 
 # -- add task --
 
+prepend_task = (htmlStr, textStatus, jqXHR) ->
+    task_id = htmlStr.match(/^<li id=\"task_(\d+)\"/)[1]
+    $('#tasks').prepend htmlStr
+
+    # FIXME: No need to apply these handlers to ALL of them.  Just the new one.
+    init_delete_btns()
+    init_datepicker()
+    init_edit()
+
+    $("#task_details_#{task_id}").hide()
+    $("#task_title_#{task_id}").click()
+
 click_add_btn = ->
-    state.after_create = true
+    # state.after_create = true
     $.ajax
         type: 'POST'
         url: '/kaseres/tasks/create/'
@@ -126,7 +139,7 @@ click_add_btn = ->
         dataType: 'html'
         cache: false
         error: on_ajax_error
-        success: update_tasks
+        success: prepend_task
 
 init_add_btn = ->
     $('#add_task').click click_add_btn
@@ -171,9 +184,6 @@ init_toggle_details_btn = ->
     init_details_display()
 
 # -- init --
-
-init_datepicker = ->
-    $('.date').datepicker {dateFormat: 'MM d, yy'}
 
 init_all = ->
     init_sort()

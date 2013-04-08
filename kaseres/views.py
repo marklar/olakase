@@ -63,27 +63,17 @@ def create_task(request):
     containing the URL to the newly created resource.
     """
     task = create_task_from_data(request.POST)
-    q_set = Task.objects.exclude(id=task.id).order_by(get_sort(request.POST))
-    all_tasks = [t for t in q_set]
-    all_tasks.insert(0, task)
-
-    template = loader.get_template('tasks/all_tasks.html')
-    context = Context({
-        'tasks': all_tasks,
-        'priorities': Task.PRIORITIES
-    })
-    res_url = ''
-    return make_response(
-        template.render(context), 'text/html', status=201, location=res_url)
-
-    # FIXME -- return the *HTML* for the new task.
-    # res_url = ''
-    # template = loader.get_template('tasks/one_task.html')
-    # context = Context({'task': task})
-    # return make_response(
-    #     template.render(context), 'text/html', status=201, location=res_url)
-    # return json_model_response(task, status=201, location=res_url)
-
+    if request.is_ajax():
+        template = loader.get_template('tasks/one_task.html')
+        context = Context({
+            'task': task,
+            'priorities': Task.PRIORITIES
+        })
+        res_url = ''  # FIXME
+        return make_response(
+            template.render(context), 'text/html', status=201, location=res_url)
+    else:
+        return json_model_response(task, status=201, location=res_url)
 
 @require_safe
 def index_old(request):
