@@ -60,6 +60,22 @@ def index(request):
         }
     }
 
+@require_safe
+def index_old(request):
+    tasks = Task.objects.order_by(get_sort(request.GET))
+    if accepts_json(request):
+        return json_models_response(tasks)
+    elif False: # accepts_xml(request):
+        return xml_models_response(tasks)
+    else:
+        context = {
+            'tasks': tasks,
+            'priorities': Task.PRIORITIES
+        }
+        return render(request,
+                      get_index_template(request.is_ajax()),
+                      context)
+
 @require_POST
 def create_task(request):
     """
@@ -80,28 +96,8 @@ def create_task(request):
         return json_model_response(task, status=201, location=res_url)
 
 @require_safe
-def index_old(request):
-    hi_pri_tasks = Task.objects.order_by('-priority')[:5]
-    if accepts_json(request):
-        return json_models_response(hi_pri_tasks)
-    elif False: # accepts_xml(request):
-        return xml_models_response(hi_pri_tasks)
-    else:
-        context = {
-            'tasks': hi_pri_tasks,
-            'priorities': Task.PRIORITIES
-        }
-        return render(request, 'tasks/index.html', context)
-        # template = loader.get_template('tasks/index.html')
-        # context = Context({
-        #     'tasks': hi_pri_tasks,
-        #     'priorities': Task.PRIORITIES
-        # })
-        # return HttpResponse(template.render(context))
-
-@require_safe
 def read_task(request, task_id):
-    task = Task.objects.get(task_id)
+    task = Task.objects.get(id=task_id)
     # if accepts_json(request):
     if True:
         return json_models_response(task)
@@ -110,30 +106,39 @@ def read_task(request, task_id):
     else:
         return HttpResponse('<h1>HTML</h1>')
 
-# @require_http_methods(['PUT'])
 @require_POST
 def update_task(request, task_id):
+    """
+    Uses POST instead of PUT, as accessing POST data is easier
+    than using request.raw_post_data or request.read().
+    @require_http_methods(['PUT'])
+    use tastypie: https://github.com/toastdriven/django-tastypie
+    """
     task = Task.objects.get(id=task_id)
-    p = request.POST
-    s = 'title'
-    if s in p: setattr(task, s, p[s])
-    s = 'details'
-    if s in p: setattr(task, s, p[s])
-    s = 'due_date'
-    if s in p: setattr(task, s, date_from_str(p[s]))
-    s = 'is_completed'
-    if s in p: setattr(task, s, p[s] == 'true')
-    s = 'priority'
-    if s in p: setattr(task, s, int(p[s]))
-    task.save()
+    update_task_from_data(task, request.POST)
+    # FIXME: return json/xml/html
     return HttpResponse('')
 
 @require_http_methods(['DELETE'])
 def delete_task(request, task_id):
     Task.objects.get(id=task_id).delete()
+    # FIXME: return json/xml/html
     return HttpResponse('')
 
 # -- helpers --
+
+def update_task_from_data(task, data):
+    s = 'title'
+    if s in data: setattr(task, s, data[s])
+    s = 'details'
+    if s in data: setattr(task, s, data[s])
+    s = 'due_date'
+    if s in data: setattr(task, s, date_from_str(data[s]))
+    s = 'is_completed'
+    if s in data: setattr(task, s, data[s] == 'true')
+    s = 'priority'
+    if s in data: setattr(task, s, int(data[s]))
+    task.save()
 
 def get_sort(req_data):
     sort_prefix = get_sort_prefix(req_data)
