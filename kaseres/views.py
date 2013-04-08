@@ -40,7 +40,7 @@ SORT_ATTRS = [
     ('Title', 'title'),
     ('Due', 'due_date'),
     ('Priority', 'priority'),
-    ('Completed?', 'is_completed')
+    ('Done', 'is_completed')
 ]
 
 @require_safe
@@ -134,10 +134,10 @@ def update_task_from_data(task, data):
     if s in data: setattr(task, s, data[s])
     s = 'due_date'
     if s in data: setattr(task, s, date_from_str(data[s]))
-    s = 'is_completed'
-    if s in data: setattr(task, s, data[s] == 'true')
     s = 'priority'
     if s in data: setattr(task, s, int(data[s]))
+    s = 'is_completed'
+    if s in data: setattr(task, s, data[s] == 'true')
     task.save()
 
 def get_sort(req_data):

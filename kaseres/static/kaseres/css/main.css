@@ -2,45 +2,82 @@ body {
     font-family: ‘Lucida Sans Unicode’, ‘Lucida Grande’, sans-serif;
 }
 
-#tasks {
-    margin: 2px;
+ul {
+    margin: 0px;
+    padding: 0px;
     list-style-type: none;
 }
 
-.task {
-    margin: 2px;
+#top_buttons {
+    margin-bottom: 10px;
+}
+
+li.task div div {
     padding: 5px;
+}
+
+.task {
     border: solid 1px lightgray;
+    margin-bottom: 1px;
+}
+
+.sort_btn {
+    background: #E3E3EC;
+    font-size: 14pt;
+    margin: 5px;
+    padding: 10px;
+    margin-bottom: 4px;
 }
 
 .delete_btn {
     display: inline-block;
-    color: orange;
+    color: Navy;
 }
 
 .highlighted {
-/*
-    color: Navy;
-    background-color: PaleGreen;
-*/
-    color: White;
-    background-color: DarkSeaGreen;
+    color: Black;
+    background-color: #E3E3EC;
 }
 
 .attr {
-    padding: 5px;
     width: 150px;
     display: inline-block;
-}
-
-.task_details {
-   padding-left: 5px;
-   padding-right: 5px;
 }
 
 .title {
     width: 350px;
 }
+#sort_title {
+    width: 350px;
+}
 
 .due_date {
+    width: 150px;
+}
+#sort_due_date {
+    width: 150px;
+}
+
+.priority {
+    width: 120px;
+}
+#sort_priority {
+    width: 120px;
+}
+.is_completed {
+    width: 110px;
+}
+#sort_is_completed {
+    width: 110px;
+}
+
+
+
+#toggle_details {
+    display: none;
+}
+.task_details {
+    display: none;
+    padding-left: 5px;
+    padding-right: 5px;
 }

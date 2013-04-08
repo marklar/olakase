@@ -9,7 +9,7 @@
   };
 
   state = {
-    details_showing: false,
+    details_showing: true,
     sort: {
       column: 'priority',
       is_asc: {
@@ -26,7 +26,7 @@
     highlight_column(state.sort.column);
     init_delete_btns();
     init_details_display();
-    return init_edit();
+    return init_edit(null);
   };
 
   sort_tasks_by = function(attr, is_asc) {
@@ -148,7 +148,7 @@
   save_is_completed = function() {
     var new_val, task_id;
 
-    new_val = $(this).val() === 'on';
+    new_val = $(this).is(':checked');
     task_id = this.id.match(/^task_is_completed_checkbox_(\d+)$/)[1];
     return update_task(task_id, 'is_completed', null, new_val);
   };
@@ -161,12 +161,15 @@
     return update_task(task_id, 'due_date', null, new_val);
   };
 
-  init_edit = function() {
-    $('.attr.title').click(edit_title);
-    $('.task_priority_select').change(save_priority);
-    $('.task_is_completed_checkbox').change(save_is_completed);
-    $('.task_due_date_input').change(save_due_date);
-    return $('.task_due_date_input').datepicker({
+  init_edit = function(task_id) {
+    var ancestor;
+
+    ancestor = task_id === null ? '' : "#task_" + task_id + " ";
+    $("" + ancestor + ".attr.title").click(edit_title);
+    $("" + ancestor + ".task_priority_select").change(save_priority);
+    $("" + ancestor + ".task_is_completed_checkbox").change(save_is_completed);
+    $("" + ancestor + ".task_due_date_input").change(save_due_date);
+    return $("" + ancestor + ".task_due_date_input").datepicker({
       dateFormat: 'MM d, yy'
     });
   };
@@ -176,8 +179,8 @@
 
     task_id = html_str.match(/^<li id=\"task_(\d+)\"/)[1];
     $('#tasks').prepend(html_str);
-    init_delete_btns();
-    init_edit();
+    $("#delete_" + task_id).click(click_delete);
+    init_edit(task_id);
     $("#task_details_" + task_id).hide();
     return $("#task_title_" + task_id).click();
   };
@@ -249,7 +252,7 @@
   };
 
   init_toggle_details_btn = function() {
-    $('#toggle_details').click(click_toggle_details).hide();
+    $('#toggle_details').click(click_toggle_details);
     set_details_btn_text();
     return init_details_display();
   };
@@ -263,7 +266,7 @@
     init_sort();
     init_once();
     init_delete_btns();
-    return init_edit();
+    return init_edit(null);
   };
 
   $(document).ready(init_all);
