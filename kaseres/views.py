@@ -9,6 +9,10 @@ from kaseres.models import Task
 from kaseres.accepts import accepts_json, accepts_html, accepts_xml
 from kaseres.responses import json_models_response, json_obj_response, xml_models_response, xml_obj_response, make_response
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def restify(f):
     """
     the view fn must return:
@@ -106,9 +110,23 @@ def read_task(request, task_id):
     else:
         return HttpResponse('<h1>HTML</h1>')
 
-@require_http_methods(['PUT'])
+# @require_http_methods(['PUT'])
+@require_POST
 def update_task(request, task_id):
-    pass
+    task = Task.objects.get(id=task_id)
+    p = request.POST
+    s = 'title'
+    if s in p: setattr(task, s, p[s])
+    s = 'details'
+    if s in p: setattr(task, s, p[s])
+    s = 'due_date'
+    if s in p: setattr(task, s, date_from_str(p[s]))
+    s = 'is_completed'
+    if s in p: setattr(task, s, p[s] == 'true')
+    s = 'priority'
+    if s in p: setattr(task, s, int(p[s]))
+    task.save()
+    return HttpResponse('')
 
 @require_http_methods(['DELETE'])
 def delete_task(request, task_id):
@@ -140,9 +158,12 @@ def create_task_from_data(req_data):
     task.save()
     return task
 
+def date_from_str(s):
+    return datetime.strptime(s, '%B %d, %Y').date()
+
 def get_due_date(req_data):
     if 'due_date' in req_data:
-        return datetime.strptime(req_data['due_date'], '%B %d, %Y').date()
+        return date_from_str(req_data['due_date'])
     else:
         return date.today()
 

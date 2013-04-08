@@ -75,26 +75,28 @@ init_datepicker = ->
 show_saved = (evt) ->
     console.log 'saved!'
 
+update_task = (task_id, attr, old_val, new_val) ->
+    return unless new_val != old_val
+    console.log "Saving task #{task_id}'s new #{attr}: #{new_val}"
+    if state.sort.column == attr
+        $("#task_#{attr}_#{task_id}").removeClass 'highlighted'
+    data = {}
+    data[attr] = new_val
+    $.ajax
+        type: 'POST' #'PUT'
+        url: "/kaseres/tasks/#{task_id}/update/"
+        data: data
+        dataType: 'html'  # perhaps json, w/ sorting info?
+        cache: false
+        error: on_ajax_error
+        success: show_saved
+
 save_title = (evt) ->
     # Set html to new title.
     new_title = $.trim $(this).val()
-    $("#task_title_#{evt.data.task_id}").
-        html(new_title).
-        click(edit_title)
+    $("#task_title_#{evt.data.task_id}").html(new_title).click(edit_title)
     # Update the task as necessary.
-    if new_title != evt.data.prev_title
-        if state.sort.column == 'title'
-            $("#task_title_#{evt.data.task_id}").removeClass 'highlighted'
-        console.log "Save task #{evt.data.task_id}'s new title: #{new_title}"
-        $.ajax
-            type: 'PUT'
-            url: "/kaseres/tasks/#{evt.data.task_id}/update/"
-            data:
-                title: new_title
-            dataType: 'html'  # perhaps json, w/ sorting info?
-            cache: false
-            error: on_ajax_error
-            success: show_saved
+    update_task evt.data.task_id, 'title', evt.data.prev_title, new_title
 
 edit_title = ->
     # Remove onClick handler.
