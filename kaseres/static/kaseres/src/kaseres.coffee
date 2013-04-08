@@ -25,7 +25,6 @@ display_sorted_tasks = (htmlStr, textStatus, jqXHR) ->
     highlight_column state.sort.column
     init_delete_btns()
     init_details_display()
-    init_datepicker()
     init_edit()
 
 sort_tasks_by = (attr, is_asc) ->
@@ -58,26 +57,22 @@ highlight_column = (attr) ->
 click_sort_btn = (evt) ->
     attr = this.id.match(/^sort_(.+)$/)[1]
     set_sort_state attr
-    set_sort_btn_imgs attr
     sort_tasks_by attr, state.sort.is_asc[attr]
+    # update display
+    set_sort_btn_imgs attr
     highlight_column attr
 
 init_sort = ->
     $('.sort_btn').click click_sort_btn
+    # update display
     set_sort_btn_imgs state.sort.column
     highlight_column state.sort.column
 
 # -- edit task --
 
-init_datepicker = ->
-    $('.date').datepicker {dateFormat: 'MM d, yy'}
-
-show_saved = (evt) ->
-    console.log 'saved!'
-
 update_task = (task_id, attr, old_val, new_val) ->
     return unless new_val != old_val
-    console.log "Saving task #{task_id}'s new #{attr}: #{new_val}"
+    # console.log "Saving task #{task_id}'s new #{attr}: #{new_val}"
     if state.sort.column == attr
         $("#task_#{attr}_#{task_id}").removeClass 'highlighted'
     data = {}
@@ -89,7 +84,7 @@ update_task = (task_id, attr, old_val, new_val) ->
         dataType: 'html'  # perhaps json, w/ sorting info?
         cache: false
         error: on_ajax_error
-        success: show_saved
+        success: -> console.log 'saved!'
 
 save_title = (evt) ->
     # Set html to new title.
@@ -102,27 +97,52 @@ edit_title = ->
     # Remove onClick handler.
     $(this).unbind()
     # Get previous title (and task_id).
-    task_id = this.id.match(/^task_title_(.+)$/)[1]
+    task_id = this.id.match(/^task_title_(\d+)$/)[1]
     prev_title = $.trim $(this).html()
     # Replace text with text-input.
-    $(this).html "<input id='temp_edit' type='text' value='#{prev_title}' />"
+    input_html =
+        "<input type='text' id='temp_edit' value='#{prev_title}' size='60' />"
+    $(this).html input_html
     # Give it focus.  When it loses it, we're done.
     $('#temp_edit').
         focus().
-        blur {task_id: task_id, prev_title: prev_title}, save_title
+        blur({task_id: task_id, prev_title: prev_title}, save_title).
+        keypress(key_title)
 
+key_title = (evt) ->
+    $(this).blur() if evt.which == 13  # return
+
+save_priority = ->
+    new_val = $(this).val()
+    task_id = this.id.match(/^task_priority_select_(\d+)$/)[1]
+    update_task task_id, 'priority', null, new_val
+
+save_is_completed = ->
+    new_val = $(this).val() == 'on'
+    task_id = this.id.match(/^task_is_completed_checkbox_(\d+)$/)[1]
+    update_task task_id, 'is_completed', null, new_val
+
+save_due_date = ->
+    new_val = $(this).val()
+    task_id = this.id.match(/^task_due_date_input_(\d+)$/)[1]
+    update_task task_id, 'due_date', null, new_val
+
+# each time new task or set of tasks
 init_edit = ->
     $('.attr.title').click edit_title
+    $('.task_priority_select').change save_priority
+    $('.task_is_completed_checkbox').change save_is_completed
+    $('.task_due_date_input').change save_due_date
+    $('.task_due_date_input').datepicker {dateFormat: 'MM d, yy'}
 
 # -- add task --
 
-prepend_task = (htmlStr, textStatus, jqXHR) ->
-    task_id = htmlStr.match(/^<li id=\"task_(\d+)\"/)[1]
-    $('#tasks').prepend htmlStr
+prepend_task = (html_str, text_status, jqXHR) ->
+    task_id = html_str.match(/^<li id=\"task_(\d+)\"/)[1]
+    $('#tasks').prepend html_str
 
     # FIXME: No need to apply these handlers to ALL of them.  Just the new one.
     init_delete_btns()
-    init_datepicker()
     init_edit()
 
     $("#task_details_#{task_id}").hide()
@@ -142,9 +162,6 @@ click_add_btn = ->
         cache: false
         error: on_ajax_error
         success: prepend_task
-
-init_add_btn = ->
-    $('#add_task').click click_add_btn
 
 # -- delete task --
 
@@ -187,12 +204,14 @@ init_toggle_details_btn = ->
 
 # -- init --
 
+init_once = ->
+    init_toggle_details_btn()
+    $('#add_task').click click_add_btn
+
 init_all = ->
     init_sort()
-    init_toggle_details_btn()
-    init_add_btn()
+    init_once()
     init_delete_btns()
-    init_datepicker()
     init_edit()
 
 $(document).ready init_all

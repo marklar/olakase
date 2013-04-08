@@ -6,12 +6,15 @@
     </div>
 
     <div id="task_due_date_{{ task.id }}" class="attr due_date">
-      <input type="text" class="date" value="{{ task.due_date }}" />
+      <input type="text"
+	     id="task_due_date_input_{{ task.id }}"
+	     class="task_due_date_input"
+	     value="{{ task.due_date }}" />
     </div>
 
     <div id="task_priority_{{ task.id }}" class="attr priority">
-      <select name="priority" size="1">
-
+      <select id="task_priority_select_{{ task.id }}"
+	      class="task_priority_select" name="priority" size="1">
 	{% for n,s in priorities %}
 	<option
 	   value="{{ n }}"
@@ -19,12 +22,14 @@
 	  {{ s }}
 	</option>
 	{% endfor %}
-
       </select>
     </div>
 
     <div id="task_is_completed_{{ task.id }}" class="attr is_completed">
-      <input type="checkbox" name="is_completed"
+      <input type="checkbox"
+	     id="task_is_completed_checkbox_{{ task.id }}"
+	     class="task_is_completed_checkbox"
+	     name="is_completed"
 	     {% if task.is_completed %}checked="checked"{% endif %} />
     </div>
 
